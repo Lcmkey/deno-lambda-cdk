@@ -1,8 +1,8 @@
 {
-  "name": "cdk-one",
+  "name": "deno-cdk-deploy",
   "version": "0.1.0",
   "bin": {
-    "cdk-one": "bin/cdk-one.js"
+    "deno-cdk": "bin/deno-cdk.js"
   },
   "scripts": {
     "build": "tsc",

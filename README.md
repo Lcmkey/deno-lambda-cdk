@@ -129,11 +129,11 @@ Outputs:
 CdkOneStack.Endpoint8024A810 = https://your-url/prod/
 ```
 
-CdkOneStack is defined in:```/bin/cdk-one.ts``` you can change the name of the stack if you desire:
+CdkOneStack is defined in:```/bin/deno-cdk.ts``` you can change the name of the stack if you desire:
 
 ```#!/usr/bin/env node
 import * as cdk from '@aws-cdk/core';
-import { CdkOneStack } from '../lib/cdk-one-stack';
+import { CdkOneStack } from '../lib/deno-cdk-stack';
 
 const app = new cdk.App();
 new CdkOneStack(app, 'CdkOneStack');  // <- Stack name>
