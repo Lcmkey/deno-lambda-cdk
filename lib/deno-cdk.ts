@@ -20,7 +20,7 @@ export class DenoCdkStack extends CDK.Stack {
     });
 
     // Define Lambda func
-    const deno_api_lamb_func = new lambda.Function(this, "NameHandler", {
+    const denoApiLambFunc = new lambda.Function(this, "NameHandler", {
       functionName: "deno-api-demo",
       code: lambda.Code.fromAsset(
         path.resolve(__dirname, "..", "src", "program")
@@ -49,7 +49,7 @@ export class DenoCdkStack extends CDK.Stack {
       // deploy: true,
     });
 
-    const integration = new apigw.LambdaIntegration(deno_api_lamb_func);
+    const integration = new apigw.LambdaIntegration(denoApiLambFunc);
 
     // We define the JSON Schema for the transformed valid request body
     const requestBodyValidationModel = restApi.addModel(
@@ -115,7 +115,7 @@ export class DenoCdkStack extends CDK.Stack {
     });
 
     // Create Deployment
-    const denoApiDeployment = new apigw.Deployment(
+    const denoApiDeployment = restApi.latestDeployment ? restApi.latestDeployment : new apigw.Deployment(
       this,
       "deno-api-deployment",
       {
@@ -139,19 +139,19 @@ export class DenoCdkStack extends CDK.Stack {
       restApiId: restApi.restApiId,
     });
 
-    const doc = new apigw.CfnDocumentationVersion(this, "docVersion1", {
-      documentationVersion: "version1",
-      restApiId: restApi.restApiId,
-      description: "this is a test of documentation",
-    });
+    // const doc = new apigw.CfnDocumentationVersion(this, "docVersion1", {
+    //   documentationVersion: "version1",
+    //   restApiId: restApi.restApiId,
+    //   description: "this is a test of documentation",
+    // });
 
-    // not sure if this is necessary but it made sense to me
-    doc.addDependsOn(docpart);
+    // // not sure if this is necessary but it made sense to me
+    // doc.addDependsOn(docpart);
 
     // // create stage of api with documentation version
     const stage = new apigw.Stage(this, "deno-api-dev", {
       deployment: denoApiDeployment,
-      documentationVersion: doc.documentationVersion,
+      // documentationVersion: doc.documentationVersion,
       stageName: "dev",
     });
 
