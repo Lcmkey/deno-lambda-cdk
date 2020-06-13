@@ -34,7 +34,7 @@ npm run watch
 This will start monitoring the CDK stack TypScript files and compile them to vanilla JavaScript.  Keep an eye on the terminal as it will compile the stack code as you make changes and save, and you'll be able to spot mistakes pre runtime.
 
 # Layers in CDK
-How do we define a layer in CDK?  I decided not to build the runtime in this example but show how to deploy a built runtime.  I took the latest release from: 
+How do we define a layer in CDK?  I decided not to build the runtime in this example but show how to deploy a built runtime.  I took the latest release from:
 [https://github.com/hayd/deno-lambda/releases](https://github.com/hayd/deno-lambda/releases
 ) and unzipped the contents into src/layer folder.  These file are what is required to run Demo.  In CDK we define a new layer:
 
@@ -63,7 +63,7 @@ const name = new lambda.Function(this, 'NameHandler', {
 # API Gateway
 
 ```js
-// API Gateway 
+// API Gateway
 new apigw.LambdaRestApi(this, 'Endpoint', {
   handler: name
 });
@@ -142,7 +142,7 @@ new CdkOneStack(app, 'CdkOneStack');  // <- Stack name>
 # Call your function!
 You can call this by issuing the command:
 ```console
-curl https://your-url/prod/Your-Name-Here | jq
+curl -X GET -H "Content-Type: application/json" -H 'x-api-key: ${API-KEY}' https://${your-url}/${stage}/${source-path}
 ```
 
 ```console
