@@ -1,0 +1,26 @@
+---
+"$schema": http://json-schema.org/draft-04/schema#
+title: WKDA request body validation
+type: array
+minItems: 1
+definitions:
+  Content:
+    type: object
+    properties:
+      content:
+        "$ref": "#/definitions/DataType"
+  DataType:
+    properties:
+      photoUrl:
+        type: string
+      text:
+        description: text
+        type: string
+      type:
+        enum:
+          - text
+          - image
+        type: string
+    type: object
+items:
+  "$ref": "#/definitions/Content"
