@@ -72,50 +72,92 @@ new apigw.LambdaRestApi(this, 'Endpoint', {
 # Sample App:
 The sample program is very simple, using the good old Object Oriented "Person" example we create a  person, it shows private variables, and the use of a getter and a constructor.
 
+### deps.ts
 ```js
-import {
-    APIGatewayProxyEvent,
-    APIGatewayProxyResult,
-    Context
+import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
+
+export { bcrypt };
+
+export {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
 } from "https://deno.land/x/lambda/mod.ts";
 
-export async function handler(
-  event: APIGatewayProxyEvent,
-  context: Context
-): Promise<APIGatewayProxyResult> {
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "text/json" },
-    body: JSON.stringify(constructResponse(event)),
-  };
-}
+export { v4 } from "https://deno.land/std/uuid/mod.ts";
+
+```
+
+### app.ts
+```js
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
+  v4,
+  bcrypt,
+} from "./deps.ts";
 
 class Person {
   private _fullName: string;
-  get fullName(): string {
-    return this._fullName + '!';
+
+  constructor(firstName: string) {
+    this._fullName = firstName;
   }
-  constructor(firstName: string, ) {
-      this._fullName = firstName;
+
+  fullName(): string {
+    return this._fullName + "!";
   }
 }
 
 class Result {
+  uuid: string;
+  key: string;
   user: Person;
   message: string;
-  constructor(u: Person, m: string){
-    this.message = m;
-    this.user = u;
+
+  constructor(uuid: string, key: string, user: Person, message: string) {
+    this.uuid = uuid;
+    this.key = key;
+    this.user = user;
+    this.message = message;
   }
 }
 
-const constructResponse = (event: APIGatewayProxyEvent) => {
-  let name = event.path.replace("/","");
-  let p = new Person(name);
-  let r = new Result(p, `Hi ${p.fullName}, Welcome to deno ${Deno.version.deno} 🦕`);
+const constructResponse = async (event: APIGatewayProxyEvent) => {
+  // const name = event.path.replace("/", "");
+  const name = "sam.leung";
+  const uuid = v4.generate();
+  const user = new Person(name);
 
-  return r;
-}
+  const salt = await bcrypt.genSalt(8);
+  const key = await bcrypt.hash(uuid, salt);
+
+  const result = new Result(
+    uuid,
+    key,
+    user,
+    `Hi ${user.fullName()}, Welcome to deno ${Deno.version.deno} 🦕`
+  );
+
+  return result;
+};
+
+const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
+  const body = await constructResponse(event);
+
+  return {
+    statusCode: 200,
+    headers: { "Content-Type": "text/json" },
+    body: JSON.stringify(body),
+  };
+};
+
+export { handler };
+
 ```
 
 # Deploy
@@ -123,7 +165,7 @@ When you are ready to deploy, run ```cdk bootstrap``` then ```cdk deploy```
 
 Outputs will look like:
 ```
- ✅  CdkOneStack
+ ✅  DenoCdkStack
 
 Outputs:
 CdkOneStack.Endpoint8024A810 = https://your-url/prod/
@@ -133,10 +175,10 @@ CdkOneStack is defined in:```/bin/deno-cdk.ts``` you can change the name of the 
 
 ```#!/usr/bin/env node
 import * as cdk from '@aws-cdk/core';
-import { CdkOneStack } from '../lib/deno-cdk-stack';
+import { DenoCdkStack } from "../lib/deno-cdk-stack";
 
 const app = new cdk.App();
-new CdkOneStack(app, 'CdkOneStack');  // <- Stack name>
+new DenoCdkStack(app, "DenoCdkStack");  // <- Stack name>
 ```
 
 # Call your function!
@@ -147,7 +189,7 @@ curl -X GET -H "Content-Type: application/json" -H 'x-api-key: ${API-KEY}' https
 
 ```console
 {
-  "message": "Hi Your-Name-Here!, Welcome to deno 1.0.2 🦕",
+  "message": "Hi Your-Name-Here!, Welcome to deno 1.1.0 🦕",
   "user": {
     "_fullName": "Your-Name-Here"
   }
